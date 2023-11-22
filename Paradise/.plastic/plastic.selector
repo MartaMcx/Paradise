@@ -1,0 +1,4 @@
+repository "Paradis@MarMCX@cloud"
+  path "/"
+    br "/main"
+    co "/main"

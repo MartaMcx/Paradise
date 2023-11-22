@@ -37,7 +37,7 @@ public class DialogueSystem : MonoBehaviour
         }
         else 
         { 
-            DestroyInmediate(gameObject); 
+            DestroyImmediate(gameObject); 
         }
 
     }
@@ -76,12 +76,12 @@ public class DialogueSystem : MonoBehaviour
     public void ShowName(string speakerName = "")
     {
 
-        if (speakerName.ToLower() != "narrator") { dialogueContainer.getDialogueText().Show(speakerName); } //will not show the name narrator
+        if (speakerName.ToLower() != "narrator") { dialogueContainer.getDialogueText()/*.Show(speakerName)*/; } //will not show the name narrator
         else { HideName(); }
 
     }
     //hide it
-    public void HideName() { dialogueContainer.getDialogueText().Hide(); }
+    public void HideName() { dialogueContainer.getDialogueText()/*.Hide()*/; }
 
 
     //print lines on text box, conversation being the txt file to use, 
