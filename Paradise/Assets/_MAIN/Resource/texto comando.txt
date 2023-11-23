@@ -1,0 +1,39 @@
+narrador "¿Como te llamas?"
+
+input "¿Cual es tu nombre ,tio?"
+
+saveName()
+
+narrador "Bienvenido, <input>" 
+
+choice "¿Que animal te gusta?"
+{
+	-Perros
+		Maria "A mi tambien{c} Me encantan los perros son muy cariñosos"
+
+	-Gatos
+		Maria "Los gatos{c} Me encantan los gatos son muy independientes "
+}
+
+Elena "comand(por aqui argumento) "
+
+Elena "(Es un pensamiento)"
+
+Elena "dialogo aquí" conmando(aqio) 
+
+comando(argumentos), args(yes aomnsdjfn)
+
+comando("sadsadas")
+
+print_1p("Esto es un comando desde el fichero")
+
+Mirian "Me ire a la izquierda y a la Derecha" print_1p("Start Moving"), [wait]moveCharDemo(left), [wait]moveCharDemo(right), print_1p("Done Moving")
+
+
+John "Pongamos algo de musica " playSong("Propuesta indecente" -v 0.75 -p 1), setMood(chill)
+
+Elena "Tienes grstos muy antiguos " playVoice("Maldito juego de ajedrez" -v 1.5), setBackgraund(Habitacion1 -t "Dialogue Lines" -s 3.5)
+
+setAccompLishment("A Legendary Boonbox" true), setCLI(Elena 0:Angle1 1:Intrigued -s 2.3 -l true)
+
+showScene(false), StopMusic(-s 1.5)  

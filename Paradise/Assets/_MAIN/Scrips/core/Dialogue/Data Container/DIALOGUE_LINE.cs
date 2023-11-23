@@ -4,34 +4,23 @@ using UnityEngine;
 
 public class DIALOGUE_LINE
 {
-    string speaker;
-    //string dialogue; --> OLD, replaced by data tpye DL_DIALOGUE_DATA
+    DL_SPEAKER_DATA speaker;
     DL_DIALOGUE_DATA dialogue;
-    string commands;
+    DL_COMMAND_DATA commands;
 
+    public bool hasSpeaker() { return speaker != null; }//!= string.Empty; }
+    public bool hasDialogue() { return dialogue != null; }
+    public bool hasCommands(){ return commands != null; }
 
-    //bool hasDialogue => dialogue != string.Empty;
-    bool hasDialogue => dialogue.GetHasDialogue();
-    bool hasCommands => commands != string.Empty;
-    bool hasSpeaker => speaker != string.Empty;
-
-    public bool GetHasDialogue() { return hasDialogue; }
-    public bool GetHasCommands() { return hasCommands; }
-    public bool GetHasSpeaker() { return hasSpeaker; }
-
+    public DL_SPEAKER_DATA GetSpeaker() { return speaker; }
     public DL_DIALOGUE_DATA GetDialogue() { return dialogue; }
-    public string GetCommands() { return commands; }
-    public string GetSpeaker() { return speaker; }
-
-
-
-    //constructor for DIALOGUE_LINE that will take the three fields and delimit them in a dialog line
+    public DL_COMMAND_DATA GetCommands() { return commands; }
     public DIALOGUE_LINE(string speaker, string dialogue, string commands)
     {
 
-        this.speaker = speaker;
-        this.dialogue = new DL_DIALOGUE_DATA(dialogue);
-        this.commands = commands;
+        this.speaker = (string.IsNullOrWhiteSpace(speaker) ? null: new DL_SPEAKER_DATA(speaker));
+        this.dialogue = (string.IsNullOrWhiteSpace(dialogue) ? null : new DL_DIALOGUE_DATA(dialogue));
+        this.commands = (string.IsNullOrWhiteSpace(commands) ? null : new DL_COMMAND_DATA(commands));
 
     }
 

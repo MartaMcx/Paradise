@@ -5,58 +5,60 @@ using UnityEngine;
 
 public class FileManager 
 {
-    public static List<string> ReadTextFile(string filePath, bool includeBlankLines = false)
+    public static List<string> ReadTextFile(string filePath, bool includeBlankLines = true)
     {
-        if (!filePath.StartsWith('/')) { filePath = FilePaths.root + filePath; } //if filePath isn't an absolute route, make the route start from game's root
+        if (!filePath.StartsWith('/'))
+        { 
+            filePath = FilePaths.root + filePath;
+        }
 
-        List<string> textLines = new List<string>();
-
-
-        //StreamReader reads the entirety of a file line per line, of the specified file
-        //if blanks counts as lines, they are included into the list of valid lines, textlines
+        List<string> lines = new List<string>();
 
         try
         {
-            using (StreamReader streamreader = new StreamReader(filePath))
+            using (StreamReader sr = new StreamReader(filePath))
             {
-                while (!streamreader.EndOfStream)
+                while (!sr.EndOfStream)
                 {
-                    string line = streamreader.ReadLine();
-                    if (includeBlankLines || !string.IsNullOrWhiteSpace(line)) { textLines.Add(line); }
+                    string line = sr.ReadLine();
+                    if (includeBlankLines || !string.IsNullOrWhiteSpace(line)) 
+                    { lines.Add(line); }
                 }
             }
         }
-        catch (FileNotFoundException exception)
+        catch (FileNotFoundException ex)
         {
-            Debug.LogError($"File not found: '{exception.FileName}'");
+            Debug.LogError($"File not found: '{ex.FileName}'");
         }
-        return textLines;
+        return lines;
     }
 
     //loading lines from text Assets of unity (inside resources), be it by string named file or text asset, read it and get each line inside of it
     //better for testing purposes.
 
-    public static List<string> ReadTextAssetFromString(string filePath, bool includeBlankLines = false)
+    public static List<string> ReadTextAsset(string filePath, bool includeBlankLines = true)
     {
 
         TextAsset textAsset = Resources.Load<TextAsset>(filePath);
-        if (textAsset == null) { Debug.LogError($"Asset not found: '{filePath}'"); return null; }
+        if (textAsset == null) 
+        { Debug.LogError($"Asset not found: '{filePath}'"); return null; }
         return ReadTextAsset(textAsset, includeBlankLines);
 
     }
-    public static List<string> ReadTextAsset(TextAsset textAsset, bool includeBlankLines = false)
+    public static List<string> ReadTextAsset(TextAsset textAsset, bool includeBlankLines = true)
     {
-        List<string> textLines = new List<string>();
-        using (StringReader stringreader = new StringReader(textAsset.text))
+        List<string> lines = new List<string>();
+        using (StringReader sr = new StringReader(textAsset.text))
         {
 
-            while (stringreader.Peek() > -1)
+            while (sr.Peek() > -1)
             {
 
-                string line = stringreader.ReadLine();
-                if (includeBlankLines || !string.IsNullOrWhiteSpace(line)) { textLines.Add(line); }
+                string line = sr.ReadLine();
+                if (includeBlankLines || !string.IsNullOrWhiteSpace(line)) 
+                { lines.Add(line); }
             }
         }
-        return textLines;
+        return lines;
     }
 }

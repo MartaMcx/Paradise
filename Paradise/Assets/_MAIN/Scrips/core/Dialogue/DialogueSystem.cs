@@ -13,13 +13,10 @@ public class DialogueSystem : MonoBehaviour
     private ConversationManager conversatonionManager;
     private TextArchitect archi;
 
-    //IsRunning from GetConversationManager
-    public bool isRunningConversation() { return conversatonionManager.GetIsRunning(); } //not sure if i need this
-
-    //getter setter for DialogueContainer
+    public bool isRunning() { return conversatonionManager.IsRunning(); } //not sure if i need this
+    public static DialogueSystem Instance() { return instance; }
+    bool init = false;
     public DialogueContainer getDialogueContainer() { return dialogueContainer; }
-
-
 
     public delegate void DialogueSystemEvent();
     event DialogueSystemEvent UserPrompt_Next;
@@ -41,48 +38,44 @@ public class DialogueSystem : MonoBehaviour
         }
 
     }
-    public static DialogueSystem Instance() { return instance; }
-
-    //initialice dialog system, called in awake, also doing GetTextArchitect on private
-    bool init = false;
     private void Initialize()
     {
         if (init) return;
-        archi = new TextArchitect(dialogueContainer.getDialogueText()); // we are setting here which text box are we going to use to display the dialogue
-        conversatonionManager = new ConversationManager(archi); // will indirectly enable user input feature (ConversationManager.OnUserPrompt_Next() on event)
-
-        //GetTextArchitect.SetBuildMethodTextType(2); // select which kind of Build method you want ##OLD, use ChooseBuildMethod() instead
-
+        archi = new TextArchitect(dialogueContainer.getDialogueText());
+        conversatonionManager = new ConversationManager(archi); 
+        
         init = true;
     }
 
-    public void onPressed(int UserInput)
-    {
-        //archi.SetBuildMethodTextType(UserInput);
-    }
-
-
-    public void AddUserPrompt_Next(DialogueSystemEvent function)
+    public void AddPrompt_Next(DialogueSystemEvent function)
     {
         UserPrompt_Next += function;
 
     }
-    public void InvokeOnUserPrompt_Next()
+    public void onPressed()
     {
-        UserPrompt_Next(); //if EventOnUserPrompt_Next = null, does nothing
+        UserPrompt_Next();
 
     }
 
     public void ShowName(string speakerName = "")
     {
 
-        if (speakerName.ToLower() != "narrator") { dialogueContainer.getDialogueText()/*.Show(speakerName)*/; } //will not show the name narrator
-        else { HideName(); }
+        if (speakerName.ToLower() != "narrator") 
+        {
+            dialogueContainer.getNameText(); 
+        }
+        else 
+        {
+            HideName(); 
+        }
 
     }
     //hide it
-    public void HideName() { dialogueContainer.getDialogueText()/*.Hide()*/; }
-
+    public void HideName() 
+    {
+        dialogueContainer.getNameText();
+    }
 
     //print lines on text box, conversation being the txt file to use, 
     public void Say(string speaker, string dialogue)
@@ -97,11 +90,7 @@ public class DialogueSystem : MonoBehaviour
     {
 
         conversatonionManager.StartConversation(conversation);
-
-
     }
-
-
 
 }
 

@@ -50,10 +50,6 @@ public class TextArchitect
         this.tmpro_word = tmpro_word;
     }
 
-    public TextArchitect(TMP_Text tMP_Text)
-    {
-        this.tMP_Text = tMP_Text;
-    }
 
     public Coroutine Build(string text)
     {
@@ -61,6 +57,7 @@ public class TextArchitect
         targetText = text;
         Stop();
         buildProcess = tmpro().StartCoroutine(Building());
+
         return buildProcess;
     }
     public Coroutine Append(string text)
@@ -73,7 +70,6 @@ public class TextArchitect
     }
 
     private Coroutine buildProcess = null;
-    private TMP_Text tMP_Text;
 
     public bool isBuilding() { return buildProcess != null; }
     public void Stop()
