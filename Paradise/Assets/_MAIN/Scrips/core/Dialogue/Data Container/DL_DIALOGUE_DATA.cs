@@ -6,15 +6,15 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static DL_DIALOGUE_DATA;
-using static Unity.Burst.Intrinsics.X86.Avx;
 
 public class DL_DIALOGUE_DATA
 {
+    private string rawData = string.Empty;
+    public string getRawData() { return rawData; }
     private const string segmentPattern = @"\{[ca]\}|\{w[ca]\s\d*\.?\d*\}";
 
     List<DIALOGUE_SEGMENT> dialogueSegments;
-    public List<DIALOGUE_SEGMENT> GetDialogue() { return dialogueSegments; }
+    public List<DIALOGUE_SEGMENT> GetsegmeDialogue() { return dialogueSegments; }
     int maxChar = 500;
     bool MAxim=false;
     public bool getMAxim() { return MAxim; }
@@ -22,7 +22,7 @@ public class DL_DIALOGUE_DATA
     public bool hasDialogue() { return dialogueSegments.Count > 0; }
     public DL_DIALOGUE_DATA(string rawDialogue)
     {
-
+        rawData= rawDialogue;
         dialogueSegments = RipSegments(rawDialogue);
 
     }
@@ -57,7 +57,7 @@ public class DL_DIALOGUE_DATA
             string matchMark = match.Value;
             matchMark = matchMark.Substring(1, match.Length - 2);
             string[] splitMark = matchMark.Split(' ');
-            segment.setDialogueMarks((DIALOGUE_SEGMENT.DialogueSignals)Enum.Parse(typeof(DIALOGUE_SEGMENT.DialogueSignals), splitMark[0]));
+            segment.setDialogueMarks((DIALOGUE_SEGMENT.DialogueSignals)Enum.Parse(typeof(DIALOGUE_SEGMENT.DialogueSignals), splitMark[0].ToUpper()));
             if (splitMark.Length > 1)
             {
                 float.TryParse(splitMark[1], System.Globalization.NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture.NumberFormat, out float signalWaitDelayDecimals);

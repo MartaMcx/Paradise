@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class DL_SPEAKER_DATA
 {
+    private string rawData = string.Empty;
+    public string getRawText() { return rawData; }
     private string name, castName;
     public string displayname() { return castName != string.Empty ? castName : name; }
     private Vector2 castPosition;
@@ -22,6 +24,7 @@ public class DL_SPEAKER_DATA
     private char EXPRESIONLAYER_DELIMITER = ',' ;
     public DL_SPEAKER_DATA(string rawSpeaker)
     {
+        rawData= rawSpeaker;
         string pattern = @$"{NAMECAST_ID}|{POSITIONCAST_ID}|{EXPRESSIONCAST_ID.Insert(EXPRESSIONCAST_ID.Length-1, @"\")}";
         MatchCollection matches = Regex.Matches(rawSpeaker, pattern);
 

@@ -10,22 +10,43 @@ public class ConversationManager
 
     private TextArchitect archit = null;
     private bool userPrompt = false;
+    private LogiclLineManager logiclLineManager;
+    public TextArchitect GetTextArchitect() { return archit; }
+    private bool watingAuto = false;
+    public bool getWatingAuto() {  return watingAuto; }
+    private ConversatioQueue conversatioQueue;
+    private Convesation convesation=null;
+    private TagManager tagManager;
+    public Convesation getConvesation()
+    {
+        if (conversatioQueue.IsEmpty())
+        {  return null; }
+        else
+        { return conversatioQueue.top(); }
+    }
+    public int getProgress() { return (conversatioQueue.IsEmpty() ? -1 : conversatioQueue.top().getProgress()); }
     public ConversationManager(TextArchitect textArchitect)
     {
         this.archit = textArchitect;
         DialogueSystem.Instance().AddPrompt_Next(OnUserPrompt_Next);
+        tagManager = new TagManager();
+        logiclLineManager = new LogiclLineManager();
+        conversatioQueue = new ConversatioQueue();
     }
-
+    public void Enqueue(Convesation convesation ){ conversatioQueue.Enqueue( convesation ); }
+    public void EnqueuePriority(Convesation convesation ){ conversatioQueue.EnqueuePriority( convesation ); }
     private void OnUserPrompt_Next()
     { 
         userPrompt = true; 
     }
 
-    public void StartConversation(List<string> conversation)
+    public Coroutine StartConversation(Convesation conversation)
     {
 
         StopConversation();
-        process = DialogueSystem.Instance().StartCoroutine(RunningConversation(conversation));
+        Enqueue( conversation );
+        process = DialogueSystem.Instance().StartCoroutine(RunningConversation());
+        return process;
     }
     public void StopConversation()
     {
@@ -35,26 +56,62 @@ public class ConversationManager
         else { DialogueSystem.Instance().StopCoroutine(process); process = null; }
     }
 
-    IEnumerator RunningConversation(List<string> conversation)
+    IEnumerator RunningConversation()
     {
 
-        for (int i = 0; i < conversation.Count; ++i)
+        while(!conversatioQueue.IsEmpty())
         {
-
-            if (string.IsNullOrWhiteSpace(conversation[i])) { continue; }
-
-            DIALOGUE_LINE line = DialogueParser.Parse(conversation[i]);
-
-            if (line.hasDialogue())
+            Convesation currentConversation = getConvesation();
+            
+            if(currentConversation.HasReacheEnd())
             {
-                yield return Line_RunDialogue(line);
+                conversatioQueue.Dequeue();
+                continue;
             }
 
-            if (line.hasCommands())
+            string rawLine = currentConversation.CurrentLine();
+            if (string.IsNullOrWhiteSpace(rawLine))
             {
-                yield return Line_RunCommands(line);
+                TryAdvanceConversation(currentConversation);
+                continue; 
             }
 
+            DIALOGUE_LINE line = DialogueParser.Parse(rawLine);
+            if (logiclLineManager.TryGetLogic(line, out Coroutine logic))
+            {
+                yield return logic;
+            }
+            else 
+            {
+                if (line.hasDialogue())
+                {
+                    yield return Line_RunDialogue(line);
+                }
+
+                if (line.hasCommands())
+                {
+                    yield return Line_RunCommands(line);
+                }
+                if (line.hasDialogue())
+                {
+                    yield return WaitForUserInput();
+                }
+            }
+            TryAdvanceConversation(currentConversation);
+        }
+        process = null;
+
+    }
+    private void TryAdvanceConversation(Convesation convesation)
+    {
+        convesation.IncremaentProgres();
+        if(convesation != conversatioQueue.top())
+        {
+            return;
+        }
+        if(convesation.HasReacheEnd())
+        {
+            conversatioQueue.Dequeue();
         }
 
     }
@@ -64,26 +121,32 @@ public class ConversationManager
 
         if (line.hasSpeaker()) 
         { 
-            DialogueSystem.Instance().ShowName(line.GetSpeaker().displayname()); 
+            DialogueSystem.Instance().ShowName(tagManager.Inject(line.GetSpeaker().displayname()));
+                
+            BacklogPanel.Instance().putInTest(@$"{line.GetSpeaker().displayname()} '{line.GetDialogue().getRawData()}'");
+
+        }
+        else
+        {
+            BacklogPanel.Instance().putInTest(@$"'{line.GetDialogue().getRawData()}'");
         }
         yield return BuildLineSegments(line.GetDialogue());
-        yield return WaitForUserInput();
     }
     IEnumerator BuildLineSegments(DL_DIALOGUE_DATA line)
     {
-        for (int i = 0; i < line.GetDialogue().Count; ++i)
+        for (int i = 0; i < line.GetsegmeDialogue().Count; ++i)
         {
-            DL_DIALOGUE_DATA.DIALOGUE_SEGMENT sement = line.GetDialogue()[i];
+            DL_DIALOGUE_DATA.DIALOGUE_SEGMENT sement = line.GetsegmeDialogue()[i];
             yield return WaitForDialogueSegmentMarkToBeTriggered(sement);
             yield return BuildDialogue(sement.getDialogue(), sement.appendText());
+
             if (line.getMAxim())
             {
                 yield return WaitForUserInput();
-                if(i == line.GetDialogue().Count-2)
+                if (i == line.GetsegmeDialogue().Count - 2)
                 {
                     line.setMAxim(false);
                 }
-                
             }
 
         }
@@ -100,7 +163,9 @@ public class ConversationManager
                 break; 
             case DIALOGUE_SEGMENT.DialogueSignals.WC:
             case DIALOGUE_SEGMENT.DialogueSignals.WA:
+                watingAuto = true;
                 yield return new WaitForSeconds(sement.GetSignalWaitDelay());
+                watingAuto=false;
                 break;
             default: 
                 break;
@@ -111,13 +176,24 @@ public class ConversationManager
     
     IEnumerator Line_RunCommands(DIALOGUE_LINE line)
     {
-        List<DL_COMMAND_DATA> commands = line.GetCommands().getCommands();
-
+        List<DL_COMMAND_DATA.Command> commands = line.GetCommands().getCommands();
+        foreach(DL_COMMAND_DATA.Command command in commands)
+        {
+            if(command.getWait())
+            { 
+                yield return CommandManager.Instance().Execute(command.getName(), command.getArguments());
+            }
+            else
+            {
+                CommandManager.Instance().Execute(command.getName(), command.getArguments());
+            }
+        }
         yield return null;
     }
 
     IEnumerator BuildDialogue(string dialogue, bool append = false)
     {
+        dialogue= tagManager.Inject(dialogue);
         if (!append)
         { archit.Build(dialogue); }
         else

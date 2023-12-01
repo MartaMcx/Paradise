@@ -26,9 +26,9 @@ public class CMD_DatabaseExtensionExam : CMD_DatabaseExtension
         database.AddCommand("moveCharDemo", new Func<string, IEnumerator>(MoveCharacter));
 
         //Savegame related commands
-        database.AddCommand("setMoney", new Action<int>(SetMoney));
-        database.AddCommand("addMoney", new Action<int>(AddMoney));
-        database.AddCommand("modifyVariable", new Action<string, int>(ModifyVariable));
+        database.AddCommand("setMoney", new Action<string>(SetMoney));
+        database.AddCommand("addMoney", new Action<string>(AddMoney));
+        database.AddCommand("modifyVariable", new Action<string[]>(ModifyVariable));
 
     }
     //palbra = decrip 
@@ -96,8 +96,8 @@ public class CMD_DatabaseExtensionExam : CMD_DatabaseExtension
     }
     private static void SavePlayer()
     {
-        string name = InputPanel.instance.lastInput;
-        Debug.Log("Nombre jugador " + name);
+        /*string name = InputPanel.instance.lastInput;
+        Debug.Log("Nombre jugador " + name);*/
     }
 
 
@@ -108,19 +108,19 @@ public class CMD_DatabaseExtensionExam : CMD_DatabaseExtension
     private static void SetMoney(string newMoney)
     {
         int.TryParse(newMoney, out int Money);
-        PlayerStatusSaveSchema.GetVariablesDictionary()["money"] = Money;
+        //PlayerStatusSaveSchema.GetVariablesDictionary()["money"] = Money;
     }
     private static void AddMoney(string moneyToAdd)
     {
         int.TryParse(moneyToAdd, out int Money);
-        PlayerStatusSaveSchema.GetVariablesDictionary()["money"] += Money;
+        //PlayerStatusSaveSchema.GetVariablesDictionary()["money"] += Money;
     }
 
     private static void ModifyVariable(string[] values)
     {
         string variableToModify =values[0];
         int.TryParse(values[1], out int value);
-        PlayerStatusSaveSchema.GetVariablesDictionary()[variableToModify] += (Int32.Parse(value));
+        //PlayerStatusSaveSchema.GetVariablesDictionary()[variableToModify] += (Int32.Parse(value));
     }
 
     ///possible variables for now:

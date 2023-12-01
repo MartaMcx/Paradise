@@ -5,7 +5,7 @@ using UnityEngine;
 public class TextingFile : MonoBehaviour
 {
     [SerializeField] TextAsset fileToRead;
-    [SerializeField] TextArchitect.BuildMethod ls = TextArchitect.BuildMethod.typewriter;
+    //[SerializeField] TextArchitect.BuildMethod ls = TextArchitect.BuildMethod.typewriter;
     void Start()
     {
         StartConversation();

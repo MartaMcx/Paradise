@@ -8,16 +8,20 @@ public class DL_COMMAND_DATA
     private List<Command> commands;
     private char COMMANDSPLITTER_ID = ',';
     private char ARGUMENTCONTAINER_ID = '(';
+    private string WAITCOMMAND_ID = "[wait]";
     public List<Command> getCommands() {  return commands; }
     public class Command
     {
         string name;
         string[] arguments;
+        bool waitForComplete;
 
         public void setName(string name) { this.name=name; }
         public string getName() {  return name; }
         public void setArguments(string[] arguments) { this.arguments=arguments;}
         public string[] getArguments() { return arguments;}
+        public bool getWait() { return waitForComplete; }
+        public void setWait(bool wait) { waitForComplete = wait; }
     }
 
     public DL_COMMAND_DATA(string rawCommands)
@@ -33,6 +37,15 @@ public class DL_COMMAND_DATA
             Command command=new Command();
             int index =cmd.IndexOf(ARGUMENTCONTAINER_ID);
             command.setName(cmd.Substring(0, index).Trim());
+            if(command.getName().ToLower().StartsWith(WAITCOMMAND_ID))
+            { 
+                command.setName(command.getName().Substring(WAITCOMMAND_ID.Length));
+                command.setWait(true);
+            }
+            else
+            {
+                command.setWait(false);
+            }
             command.setArguments(GetArgs(cmd.Substring(index+1, cmd.Length-index-2)));
         }
         return result;

@@ -17,12 +17,11 @@ public class TextArchitect
         else
         { return tmpro_word; }
     }
-    public string currentText() { return tmpro_word.text; }
+    public string currentText() { return tmpro().text; }
     private string targetText = "";
     public string getTargetText() { return targetText; }
     private string preText = "";
     public string getPreText() { return preText; }
-    private int preTextIndex = 0;
 
     public string fullTargetText() { return preText + targetText; }
     public enum BuildMethod { instant, typewriter, fade }

@@ -11,30 +11,32 @@ public class DialogueSystem : MonoBehaviour
     
 
     private ConversationManager conversatonionManager;
+    public ConversationManager getConversationManager()
+    {
+        return conversatonionManager;
+    }
     private TextArchitect archi;
-
-    public bool isRunning() { return conversatonionManager.IsRunning(); } //not sure if i need this
+    private AutoReader autoReader;
+    [SerializeField] private CanvasGroup mainCanvas;
+    public bool isRunning() { return conversatonionManager.IsRunning(); }
+    static DialogueSystem instance;
     public static DialogueSystem Instance() { return instance; }
     bool init = false;
     public DialogueContainer getDialogueContainer() { return dialogueContainer; }
-
+    private CanvasGroupController cgController;
     public delegate void DialogueSystemEvent();
     event DialogueSystemEvent UserPrompt_Next;
 
-
-
-    //singleton, if done correctly, calls on Initialize()
-    static DialogueSystem instance;
     private void Awake()
     {
-        if (instance == null) 
-        { 
-            instance = this; 
-            Initialize(); 
+        if (instance == null)
+        {
+            instance = this;
+            Initialize();
         }
-        else 
-        { 
-            DestroyImmediate(gameObject); 
+        else
+        {
+            DestroyImmediate(gameObject);
         }
 
     }
@@ -42,8 +44,13 @@ public class DialogueSystem : MonoBehaviour
     {
         if (init) return;
         archi = new TextArchitect(dialogueContainer.getDialogueText());
-        conversatonionManager = new ConversationManager(archi); 
-        
+        conversatonionManager = new ConversationManager(archi);
+        cgController = new CanvasGroupController(this, mainCanvas);
+        dialogueContainer.Initialize();
+        if(TryGetComponent(out autoReader))
+        {
+            autoReader.Initialize(conversatonionManager);
+        }
         init = true;
     }
 
@@ -52,18 +59,26 @@ public class DialogueSystem : MonoBehaviour
         UserPrompt_Next += function;
 
     }
+    public void onAutoPressed()
+    {
+        UserPrompt_Next();
+    }
     public void onPressed()
     {
         UserPrompt_Next();
+        if(autoReader !=null && autoReader.isOn())
+        {
+            autoReader.Disable();
+        }
 
     }
 
     public void ShowName(string speakerName = "")
     {
 
-        if (speakerName.ToLower() != "narrator") 
+        if (speakerName.ToLower() != "narrador") 
         {
-            dialogueContainer.getNameText(); 
+            dialogueContainer.getNameContainer().Show(speakerName); 
         }
         else 
         {
@@ -74,23 +89,29 @@ public class DialogueSystem : MonoBehaviour
     //hide it
     public void HideName() 
     {
-        dialogueContainer.getNameText();
+        dialogueContainer.getNameContainer().Hide();
     }
 
     //print lines on text box, conversation being the txt file to use, 
-    public void Say(string speaker, string dialogue)
+    public Coroutine Say(string speaker, string dialogue)
     {
 
         List<string> conversation = new List<string>() { $"{speaker} \"{dialogue}\"" };
-        Say(conversation);
+        return Say(conversation);
 
     }
-    //will indirectly call coroutine RunningConversation() over on ConversationManager
-    public void Say(List<string> conversation)
+    public Coroutine Say(Convesation convesation)
     {
-
-        conversatonionManager.StartConversation(conversation);
+        return conversatonionManager.StartConversation(convesation);
     }
+    public Coroutine Say(List<string> Lines)
+    {
+        Convesation convesation =new Convesation(Lines);
+        return conversatonionManager.StartConversation(convesation);
+    }
+    public bool isVisible() { return cgController.isVisible(); }
+    public Coroutine Show() { return cgController.Show(); }
+    public Coroutine Hide() { return cgController.Hide(); }
 
 }
 

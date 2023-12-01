@@ -5,14 +5,14 @@ using UnityEngine;
 
 public class DialogueParser
 {
-    private const string commandRegexPattern = "\\w*[^\\s]\\(";
+    private const string commandRegexPattern = @"[\w[\]]*[^\s]\(";
 
     public static DIALOGUE_LINE Parse(string rawLine)
     {
 
         (string speaker, string dialogue, string commands) = GetDialogueLineFields(rawLine);
 
-       return new DIALOGUE_LINE(speaker, dialogue, commands);
+       return new DIALOGUE_LINE(rawLine, speaker, dialogue, commands);
     }
     private static (string, string, string) GetDialogueLineFields(string rawLine)
     {
@@ -46,18 +46,21 @@ public class DialogueParser
         }
        
         Regex commandRegex = new Regex(commandRegexPattern);
-        Match checkMatch = commandRegex.Match(rawLine);
+        MatchCollection checkMatch = commandRegex.Matches(rawLine);
 
         int commandStart = -1;
-        if (checkMatch.Success)
+        foreach (Match match in checkMatch)
         {
-            commandStart = checkMatch.Index;
-            if (dialogueStart == -1 && dialogueEnd == -1) 
-            { 
-                return ("", "", rawLine.Trim());
-            } 
+            if (match.Index < dialogueStart || match.Index > dialogueEnd)
+            {
+                commandStart = match.Index;
+                break;
+            }
         }
-        
+        if(commandStart !=-1 &&(dialogueStart==-1 && dialogueEnd==-1))
+        {
+            return ("", "", rawLine.Trim());
+        }
         if (dialogueStart != -1 && dialogueEnd != -1 && (commandStart == -1 || commandStart > dialogueEnd))
         {
             speaker = rawLine.Substring(0, dialogueStart).Trim();
@@ -73,9 +76,8 @@ public class DialogueParser
         }
         else
         {
-            speaker = rawLine; 
+            dialogue = rawLine; 
         }
-
 
         return (speaker, dialogue, commands);
     }
