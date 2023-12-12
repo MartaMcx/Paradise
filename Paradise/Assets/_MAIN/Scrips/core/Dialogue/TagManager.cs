@@ -7,7 +7,7 @@ using UnityEngine;
 public class TagManager
 {
     private  Dictionary<string, Func<string>> tags = new Dictionary<string, Func<string>>();
-    private Regex tagRegex = new Regex("<\\w>");
+    private Regex tagRegex = new Regex("<\\w+>");
 
     public TagManager() 
     {
