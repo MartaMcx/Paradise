@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class InputPanel : MonoBehaviour
 {
+    [SerializeField] private Button backButton;
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private Button acceptButton;
@@ -32,6 +33,7 @@ public class InputPanel : MonoBehaviour
     }
     public void Show(string title)
     {
+        backButton.interactable = false;
         titleText.text = title;
         Debug.Log(title);
         inputField.text = string.Empty;
@@ -41,6 +43,7 @@ public class InputPanel : MonoBehaviour
     }
     public void Hide()
     {
+        backButton.interactable = true;
         cg.Hide();
         isWaitingOnUserInput= false;
         cg.SetInteractiveState(active: false);

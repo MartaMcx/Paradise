@@ -121,7 +121,7 @@ public class ConversationManager
 
         if (line.hasSpeaker()) 
         { 
-            DialogueSystem.Instance().ShowName(tagManager.Inject(line.GetSpeaker().displayname()));
+            DialogueSystem.Instance().ShowName(TagManager.Inject(line.GetSpeaker().displayname()));
                 
             BacklogPanel.Instance().putInTest(@$"{line.GetSpeaker().displayname()} '{line.GetDialogue().getRawData()}'");
 
@@ -136,7 +136,7 @@ public class ConversationManager
     {
         for (int i = 0; i < line.GetsegmeDialogue().Count; ++i)
         {
-            DL_DIALOGUE_DATA.DIALOGUE_SEGMENT sement = line.GetsegmeDialogue()[i];
+            DIALOGUE_SEGMENT sement = line.GetsegmeDialogue()[i];
             yield return WaitForDialogueSegmentMarkToBeTriggered(sement);
             yield return BuildDialogue(sement.getDialogue(), sement.appendText());
 
@@ -152,7 +152,7 @@ public class ConversationManager
         }
 
     }
-    IEnumerator WaitForDialogueSegmentMarkToBeTriggered(DL_DIALOGUE_DATA.DIALOGUE_SEGMENT sement)
+    IEnumerator WaitForDialogueSegmentMarkToBeTriggered(DIALOGUE_SEGMENT sement)
     {
 
         switch (sement.getDialogueMark())
@@ -193,7 +193,7 @@ public class ConversationManager
 
     IEnumerator BuildDialogue(string dialogue, bool append = false)
     {
-        dialogue= tagManager.Inject(dialogue);
+        dialogue= TagManager.Inject(dialogue);
         if (!append)
         { archit.Build(dialogue); }
         else

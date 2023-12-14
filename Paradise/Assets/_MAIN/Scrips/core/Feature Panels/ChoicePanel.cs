@@ -8,6 +8,8 @@ using System;
 
 public class ChoicePanel : MonoBehaviour
 {
+    [SerializeField] private Button backButton;
+
     private static ChoicePanel instance;
     public static ChoicePanel Instance() { return instance; }
 
@@ -17,6 +19,7 @@ public class ChoicePanel : MonoBehaviour
 
     private float BUTTON_HEIGHT_PERLINE = 50f;
     private float BUTTON_HEIGHT_PADDING = 20;
+
 
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private TextMeshProUGUI titleTex;
@@ -41,6 +44,7 @@ public class ChoicePanel : MonoBehaviour
     }
     public void Show(string question, string[] choices)
     {
+        backButton.interactable = false;
         lastDecision = new ChoicePanelDecision(question, choices);
         isWaitingOnUserChoice = true;
         cg.Show();
@@ -103,6 +107,7 @@ public class ChoicePanel : MonoBehaviour
     }
     public void Hide()
     {
+        backButton.interactable = true;
         cg.SetInteractiveState(false);
         cg.Hide();
     }

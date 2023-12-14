@@ -404,9 +404,11 @@
 "Assets/_MAIN/Scrips/core/Logical Lines/Types/LL_Condition.cs"
 "Assets/_MAIN/Scrips/core/Logical Lines/Types/LL_input.cs"
 "Assets/_MAIN/Scrips/core/Logical Lines/Types/LL_Operator.cs"
+"Assets/_MAIN/Scrips/core/Logical Lines/VariableStore.cs"
 "Assets/_MAIN/Scrips/core/TextArchitect.cs"
 "Assets/_MAIN/Scrips/core/UserControler/PlayerInputManager.cs"
 "Assets/_TESTING/TextingFile.cs"
+"Assets/_TESTING/VariableTesting.cs"
 -langversion:9.0
 
 /deterministic

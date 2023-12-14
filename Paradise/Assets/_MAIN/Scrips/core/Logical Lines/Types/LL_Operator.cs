@@ -22,10 +22,20 @@ public class LL_Operator : ILogicalLine
             Debug.LogError($"Invalid command: {trimmedLine}");
             yield break;
         }
-        string vari= parts[0].Trim().TrimStart('$');
+        string vari= parts[0].Trim().TrimStart(VariableStore.VARIABLE_ID);
         string op = parts[1].Trim();
         string[] remainingPars=new string[parts.Length-2];
         Array.Copy(parts,2, remainingPars,0,parts.Length-2);
+        object value = CalculateValue(remainingPars);
+        if (value == null) 
+        {
+            yield break;
+        }
+        ProcessOperators(vari, op, value);
+    }
+    private void ProcessOperators(string variable, string op , object value) 
+    {
+        
     }
     public bool Maches(DIALOGUE_LINE lINE)
     {

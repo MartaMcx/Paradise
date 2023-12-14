@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class LogicalLineUtils
@@ -65,7 +67,135 @@ public class LogicalLineUtils
         public static HashSet<string> OPERATORS = new HashSet<string>(){"+","+=","-","-=","*","*=","/","/=","="};
         public static string REGEX_ARITMATIC = @"([-+*/=]=?)";
         public static string REGEX_OPERATOR_LINE = @"^\$\w+\s*(=|\+=|-=|\*=\/=|)\s*";
-        public static string REGEX_Variable_IDS = @"[!]?\$[a-zA-Z0-9_.]+";
 
+        public static object CalculateValue(string[] expresPart)
+        {
+            List<string> operadString= new List<string>();
+            List<string> operatorString= new List<string>();
+            List<object> operands = new List<object>();
+
+            for (int i = 0; i < expresPart.Length; ++i)
+            {
+                string part = expresPart[i].Trim();
+                if (part == string.Empty)
+                {
+                    continue;
+                }
+                if (OPERATORS.Contains(part))
+                { operadString.Add(part); }
+                else
+                {  operatorString.Add(part); }
+            }
+            foreach (string part in operadString) 
+            {
+                operands.Add(ExtractValue(part));
+            }
+            CalculaDivMul(operatorString, operands);
+            CalculaSumRes(operatorString, operands);
+            return operands[0];
+        }
+        private static void CalculaDivMul(List<string> operatorStrings, List<object> operands)
+        {
+            for (int i = 0;i < operatorStrings.Count; ++i) 
+            {
+                string operatorString = operatorStrings[i];
+
+                if (operatorString =="*" || operatorString == "/")
+                {
+                    double leftOp= Convert.ToDouble(operands[i]);
+                    double rightOp= Convert.ToDouble(operands[i+1]);
+
+                    if (operatorString == "*")
+                    {
+                        operands[i] = leftOp * rightOp;
+                    }
+                    else
+                    {
+                        if (rightOp == 0)
+                        {
+                            if (rightOp == 0)
+                            {
+                                Debug.LogError("cannot divide by zero");
+                                return;
+                            }
+                            operands[i] = leftOp / rightOp;
+                        }
+                    }
+                    operands.RemoveAt(i + 1);
+                    operatorStrings.RemoveAt(i);
+                    --i;
+                }
+            }
+        }
+        private static void CalculaSumRes(List<string> operatorStrings, List<object> operands)
+        {
+            for (int i = 0; i < operatorStrings.Count; ++i)
+            {
+                string operatorString = operatorStrings[i];
+
+                if (operatorString == "+" || operatorString == "-")
+                {
+                    double leftOp = Convert.ToDouble(operands[i]);
+                    double rightOp = Convert.ToDouble(operands[i + 1]);
+
+                    if (operatorString == "+")
+                    {
+                        operands[i] = leftOp + rightOp;
+                    }
+                    else
+                    {
+                        operands[i] = leftOp - rightOp;
+                    }
+                    operands.RemoveAt(i + 1);
+                    operatorStrings.RemoveAt(i);
+                    --i;
+                }
+            }
+
+        }
+
+        private static object ExtractValue(string value)
+        {
+            bool negate = false;
+            if (value.StartsWith('!'))
+            {
+                negate = true;
+                value = value.Substring(1);
+            }
+            if (value.StartsWith(VariableStore.VARIABLE_ID))
+            {
+                string variableName = value.TrimStart(VariableStore.VARIABLE_ID);
+                if(!VariableStore.HasVarable(variableName))
+                {
+                    Debug.LogError($"Varieble {variableName} does not exist !");
+                    return null;
+                }
+                VariableStore.TryGetValue(variableName, out object val);
+
+                if(val is bool boolVal && negate)
+                {
+                    return !boolVal;
+                }
+                return val;
+            }
+            else if(value.StartsWith('\"') && value.EndsWith('\"'))
+            {
+                value = TagManager.InjectVaiables(value);
+                return value.Trim('"');
+            }
+            else
+            {
+                if(int.TryParse(value,out int intValue))
+                { return intValue; }
+                
+                else if(float.TryParse(value, out float floatValue))
+                { return floatValue; }
+                
+                else if (bool.TryParse(value, out bool boolValue))
+                { return negate ? !boolValue : boolValue; }
+                
+                else { return value; }
+            }
+        }
     }
 }
